@@ -1,6 +1,5 @@
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -10,10 +9,6 @@ public class Tokenizer {
     private OutputFile output;
     private String line = "";
     private LineNumber ln = new LineNumber();
-    // private String tokenType = "";
-    // private String token = "";
-    private int tokenIndex = 0;
-    private int lineNumber = 0;
     private Pattern keywordPattern = Pattern.compile("\\b(?:class|constructor|function|method|field|static|var|int|char|boolean|void|true|false|null|this|let|do|if|else|while|return)\\b");
     private Pattern symbolPattern = Pattern.compile("[{}\\[\\]().,;\\+\\-*/&|<>=~]");
     private Pattern integerPattern = Pattern.compile("\\b\\d+\\b");
@@ -29,15 +24,6 @@ public class Tokenizer {
         this.output = outFile;
         ln.setLineNumber(1);
     }
-
-    // public boolean hasMoreTokens() {
-    //     try {
-    //         return (line = input.readLine()) != null;
-    //     } catch (IOException e) {
-    //         e.printStackTrace();
-    //     }
-    //     return false;
-    // }
 
     public List<Token> getTokens() {
         return this.tokens;
@@ -80,21 +66,28 @@ public class Tokenizer {
         line = trimWhitespace(line);
     
         // Tokenize the line and store the tokens
-        tokens = tokenizeLine();
-    
-        // Process the tokens as needed
+        tokenizeLine();
+    }
+
+    public void printTokensToConsole() {
         for (Token token : tokens) {
             System.out.println("Type: " + token.getTokenType() + ", Token: " + token.getToken());
+        }
+    }
+
+    public void printTokensToFile() {
+        writeOpenXml();
+        for (Token token : tokens) {
             String tokenType = token.getTokenType();
             String tokenValue = token.getToken();
             output.writeOutputLine("<" + tokenType + "> " + escapeXml(tokenValue) + " </" + tokenType + ">");
         }
+        writeCloseXml();
     }
 
-    public List<Token> tokenizeLine() {
+    public void tokenizeLine() {
         String tokenType = "";
         String token = "";
-        List<Token> tokens = new ArrayList<>();
         while (matcher.find()) {
             token = matcher.group();
             if (keywordPattern.matcher(token).matches()) {
@@ -113,7 +106,6 @@ public class Tokenizer {
             Token tokenObject = new Token(token, tokenType);
             tokens.add(tokenObject);
         }
-        return tokens;
     }
     
     public void writeOpenXml() {
@@ -124,23 +116,6 @@ public class Tokenizer {
         output.writeOutputLine("</tokens>");
     }
 
-    // public void writeTokensToFile(List<Token> tokens, String outputFile) {
-    //     try (FileWriter writer = new FileWriter(outputFile)) {
-    //         writer.write("<tokens>\n");
-
-    //         for (Token token : tokens) {
-    //             String tokenType = token.getTokenType();
-    //             String tokenValue = token.getToken();
-
-    //             writer.write("<" + tokenType + "> " + escapeXml(tokenValue) + " </" + tokenType.toLowerCase() + ">\n");
-    //         }
-
-    //         writer.write("</tokens>\n");
-    //     } catch (IOException e) {
-    //         e.printStackTrace();
-    //     }
-    // }
-
     private String escapeXml(String input) {
         return input
                 .replace("&", "&amp;")
@@ -149,107 +124,4 @@ public class Tokenizer {
                 .replace("\"", "")
                 .replace("'", "");
     }
-
-    // public String tokenType(String token) {
-    //     // test if the token is a keyword or symbol
-    //     switch(token) {
-    //         case "class":
-    //         case "constructor":
-    //         case "function":
-    //         case "method":
-    //         case "field":
-    //         case "static":
-    //         case "var":
-    //         case "int":
-    //         case "char":
-    //         case "boolean":
-    //         case "void":
-    //         case "true":
-    //         case "false":
-    //         case "null":
-    //         case "this":
-    //         case "let":
-    //         case "do":
-    //         case "if":
-    //         case "else":
-    //         case "while":
-    //         case "return":
-    //             return "KEYWORD";
-    //         case "{":
-    //         case "}":
-    //         case "(":
-    //         case ")":
-    //         case "[":
-    //         case "]":
-    //         case ".":
-    //         case ",":
-    //         case ";":
-    //         case "+":
-    //         case "-":
-    //         case "*":
-    //         case "/":
-    //         case "&":
-    //         case "|":
-    //         case "<":
-    //         case ">":
-    //         case "=":
-    //         case "~":
-    //             return "SYMBOL";
-    //         default:
-    //             break;
-    //     }
-
-    //     // test if the token is an integer constant
-    //     try {
-    //         int number = Integer.parseInt(token);
-    //         if (number >= 0 && number <= 32767) {
-    //             return "INT_CONST";
-    //         }
-    //     } catch (NumberFormatException e) {
-    //         // String not a valid integer
-    //     }
-
-    //     // test if the token is a string constant
-    //     if(token != null && token.length() >= 2) {
-    //         char firstChar = token.charAt(0);
-    //         char lastChar = token.charAt(token.length() - 1);
-    //         if(firstChar == '"' && lastChar == '"') {
-    //             return "STRING_CONST";
-    //         }
-    //     }
-
-    //     // test if the token is an identifier:
-    //     // regex will match any string that contains letters, numbers,
-    //     // or underscores, provided it does not start with a digit
-    //     if(token.matches("^[a-zA-Z_][a-zA-Z0-9_]*$")) {
-    //         return "IDENTIFIER";
-    //     }
-
-    //     return "INVALID";
-    // }
-
-    // public String keyWord() {
-    //     // only if tokenType = "KEYWORD"
-    //     return this.token;
-    // }
-
-    // public char symbol() {
-    //     // only if tokenType = "SYMBOL"
-    //     return this.token.charAt(0);
-    // }
-
-    // public String identifier() {
-    //     // only if tokenType = "IDENTIFIER"
-    //     return this.token;
-    // }
-
-    // public int intVal() {
-    //     // only if tokenType = "INT_CONST"
-    //     return Integer.parseInt(token);
-    // }
-
-    // public String stringVal() {
-    //     // only if tokenType = "STRING_CONST"
-    //     return this.token;
-    // }
 }

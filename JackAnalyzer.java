@@ -1,6 +1,4 @@
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
 
 public class JackAnalyzer {
     public static void main(String[] args) throws IOException {
@@ -23,13 +21,12 @@ public class JackAnalyzer {
             e.printStackTrace();
         }
 
-        t.writeOpenXml();
-
         for (int currentLine = 1; currentLine <= lineCount; currentLine++) {
             t.processLine(currentLine);
         }
 
-        t.writeCloseXml();
+        t.printTokensToConsole();
+        t.printTokensToFile();
 
     }
 }
