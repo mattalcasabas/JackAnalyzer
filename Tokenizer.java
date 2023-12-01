@@ -9,6 +9,7 @@ public class Tokenizer {
     private OutputFile output;
     private String line = "";
     private LineNumber ln = new LineNumber();
+    private int currentIndex = 0;
     private Pattern keywordPattern = Pattern.compile("\\b(?:class|constructor|function|method|field|static|var|int|char|boolean|void|true|false|null|this|let|do|if|else|while|return)\\b");
     private Pattern symbolPattern = Pattern.compile("[{}\\[\\]().,;\\+\\-*/&|<>=~]");
     private Pattern integerPattern = Pattern.compile("\\b\\d+\\b");
@@ -25,8 +26,22 @@ public class Tokenizer {
         ln.setLineNumber(1);
     }
 
-    public List<Token> getTokens() {
+    public List<Token> getTokenList() {
         return this.tokens;
+    }
+
+    public int getTokenListSize() {
+        return this.tokens.size();
+    }
+
+    public void advance() {
+        if (currentIndex < tokens.size() - 1) {
+            currentIndex++;
+        }
+    }
+
+    public Token getTokenAtIndex(int index) {
+        return this.tokens.get(index);
     }
     
     public String trimComment(String input) {
